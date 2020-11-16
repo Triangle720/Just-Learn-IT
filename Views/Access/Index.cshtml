@@ -17,10 +17,12 @@
             <div class="form-group">
                 <label asp-for="Password" class="control-label"></label>
                 <input asp-for="Password" type="password" class="form-control" />
-                @*<text @ViewBag.LoginError class="text-danger"></text>*@
             </div>
             <div class="form-group text-center">
                 <input type="submit" value="Sign in" class="btn btn-primary" />
+            </div>
+            <div class="text-center">
+                <text class="text-danger">@ViewBag.LoginErr</text>
             </div>
         </form>
     </div>
@@ -38,7 +40,7 @@
             <div class="form-group">
                 <div class="form-label">
                     <label asp-for="Login" class="control-label"></label>
-                    <span asp-validation-for="Login" class="text-danger" ></span>
+                    <span asp-validation-for="Login" class="text-danger"></span>
                 </div>
                 <input asp-for="Login" class="form-control" autocomplete="off" />
             </div>
@@ -51,6 +53,9 @@
             </div>
             <div class="form-group text-center">
                 <input type="submit" value="Create account" class="btn btn-primary" />
+            </div>
+            <div class="text-center">
+                <text class="text-danger">@ViewBag.RegisterMessage</text>
             </div>
         </form>
     </div>

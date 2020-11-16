@@ -16,14 +16,39 @@ namespace JustLearnIT.Controllers
     {
         private readonly DatabaseContext _context;
 
+        public enum IndexMessage
+        {
+            None,
+            IncorrectLogin,
+            AccountCreated,
+            LoginTaken
+        }
+
         public AccessController(DatabaseContext context)
         {
             _context = context;
         }
 
+        [Route("Access/{message?}")]
         [AllowAnonymous]
-        public IActionResult Index()
+        public IActionResult Index(IndexMessage message = IndexMessage.None)
         {
+            switch (message)
+            {
+                case IndexMessage.IncorrectLogin:
+                    ViewBag.LoginErr = "Wrong username or password";
+                    break;
+                case IndexMessage.AccountCreated:
+                    ViewBag.RegisterMessage = "Accout successfully created!";
+                    break;
+                case IndexMessage.LoginTaken:
+                    ViewBag.RegisterMessage = "Login already taken";
+                    break;
+                default:
+                    ViewBag.LoginErr = ViewBag.RegisterMessage = string.Empty;
+                    break;
+            }
+
             return View();
         }
 
@@ -50,8 +75,7 @@ namespace JustLearnIT.Controllers
                 }
             }
             
-            // incorrect login or password
-            return View("Index");
+            return RedirectToAction("Index", new { message = IndexMessage.IncorrectLogin });
         }
 
         [AllowAnonymous]
@@ -64,11 +88,10 @@ namespace JustLearnIT.Controllers
                 await _context.AddAsync(user);
                 await _context.SaveChangesAsync();
 
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new { message = IndexMessage.AccountCreated });
             }
 
-            // login already taken
-            return View("Index");
+            return RedirectToAction("Index", new { message = IndexMessage.LoginTaken });
         }
 
         public IActionResult Logout()
