@@ -16,13 +16,12 @@ namespace JustLearnIT.Models
 
         [NotNull]
         [Required]
-        [StringLength(20, MinimumLength = 4)]
-        [RegularExpression("[a-zA-Z0-9]{4,20}")]
+        [RegularExpression("[a-zA-Z0-9]{4,20}", ErrorMessage = "4-20 characters, a-z A-z 0-9")]
         public string Login { get; set; }
 
         [NotNull]
         [Required]
-        [StringLength(256, MinimumLength = 6)]
+        [RegularExpression(".{6,256}", ErrorMessage = "6-256 characters")]
         public string Password { get; set; }
 
         public DateTime AccountCreationTime { get; set; } = DateTime.Now;

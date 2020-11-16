@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using JustLearnIT.Models;
 using JustLearnIT.Data;
+using Microsoft.AspNetCore.Authorization;
 
 namespace JustLearnIT.Controllers
 {
@@ -14,36 +15,17 @@ namespace JustLearnIT.Controllers
             _context = context;
         }
 
+        [AllowAnonymous]
         public IActionResult Index()
         {
             return View();
         }
 
-        public IActionResult Login()
-        {
-            return View();
-        }
-
-        public IActionResult Register()
-        {
-            return View();
-        }
-
-        public IActionResult Courses()
-        {
-            return View();
-        }
-
-        public IActionResult TEST()
-        {
-            var user = _context.Users;
-            return View(user);
-        }
-
+        [AllowAnonymous]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return View();
         }
     }
 }
