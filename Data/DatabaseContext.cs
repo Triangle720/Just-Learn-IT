@@ -7,15 +7,13 @@ namespace JustLearnIT.Data
     {
         public DatabaseContext(DbContextOptions options) : base(options)
         {
-
+            
         }
 
         public DbSet<UserModel> Users { get; set; }
         public DbSet<CourseModel> Courses { get; set; }
-
-        //protected override void OnModelCreating(ModelBuilder modelBuilder)
-        //{
-
-        //}
+        public DbSet<SaltModel> Salts { get; set; }
+        public DbSet<TrustedDeviceModel> TrustedDevices { get; set; }
+        public DbSet<VerificationCodeModel> VerificationCodes { get; set; }
     }
 }

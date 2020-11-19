@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using JustLearnIT.Data;
 using JustLearnIT.Models;
+using JustLearnIT.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -21,7 +22,9 @@ namespace JustLearnIT.Controllers
             None,
             IncorrectLogin,
             AccountCreated,
-            LoginTaken
+            LoginTaken,
+            EmailTaken,
+            NotVerified
         }
 
         public AccessController(DatabaseContext context)
@@ -38,11 +41,17 @@ namespace JustLearnIT.Controllers
                 case IndexMessage.IncorrectLogin:
                     ViewBag.LoginErr = "Wrong username or password";
                     break;
+                case IndexMessage.NotVerified:
+                    ViewBag.LoginErr = "Check your email & verify account";
+                    break;
                 case IndexMessage.AccountCreated:
                     ViewBag.RegisterMessage = "Accout successfully created!";
                     break;
                 case IndexMessage.LoginTaken:
                     ViewBag.RegisterMessage = "Login already taken";
+                    break;
+                case IndexMessage.EmailTaken:
+                    ViewBag.EmailErr = "Email assigned to another account";
                     break;
                 default:
                     ViewBag.LoginErr = ViewBag.RegisterMessage = string.Empty;
@@ -52,16 +61,41 @@ namespace JustLearnIT.Controllers
             return View();
         }
 
-        [AllowAnonymous]
-        public async Task<IActionResult> Login([Bind("Login, Password")] UserModel user)
+        [Route("Access/Verify/{key?}")]
+        public async Task<IActionResult> Verify(string key = "")
         {
-            var temp = await _context.Users.Where(u => u.Login == user.Login).FirstOrDefaultAsync();
+            if (key != string.Empty)
+            {
+                var user = await _context.Users.Where(u => u.VerificationCode.RadnomUriCode == key).FirstOrDefaultAsync();
+
+                if (user != null)
+                {
+                    user.IsVerified = true;
+                    _context.Entry(user).State = EntityState.Modified;
+                    _context.Remove(user.VerificationCode);
+                    await _context.SaveChangesAsync();
+
+                    ViewBag.Message = "Account verified successfully!";
+                    return View(true);
+                }
+            }
+
+            ViewBag.Message = "Are you lost? :)";
+            return View(false);
+        }
+
+        [AllowAnonymous]
+        public async Task<IActionResult> Login([Bind("Login")] UserModel user, string passwordString)
+        {
+            var temp = await _context.Users.Where(u => u.Login == user.Login.ToLower()).FirstOrDefaultAsync();
 
             if (temp != null)
             {
-                if (user.Password == temp.Password)
+                if (await InputManager.CheckPassword(passwordString, temp.Id, temp.Password, _context))
                 {
-                    var token = await Security.AuthService.AssignToken(temp);
+                    if (!temp.IsVerified) return RedirectToAction("Index", new { message = IndexMessage.NotVerified }); ;
+
+                    var token = await AuthService.AssignToken(temp);
 
                     JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
                     string tokenString = tokenHandler.WriteToken(token);
@@ -74,24 +108,35 @@ namespace JustLearnIT.Controllers
                     return RedirectToAction("Index", "Home");
                 }
             }
-            
+
             return RedirectToAction("Index", new { message = IndexMessage.IncorrectLogin });
         }
 
         [AllowAnonymous]
-        public async Task<IActionResult> Register([Bind("Login, Password")] UserModel user)
+        public async Task<IActionResult> Register([Bind("Login, Email")] UserModel user, string passwordString)
         {
-            if (await _context.Users.Where(u => u.Login == user.Login).FirstOrDefaultAsync() == null)
+            if (await _context.Users.Where(u => u.Login == user.Login).AnyAsync())
+                return RedirectToAction("Index", new { message = IndexMessage.LoginTaken });
+
+            else if (await _context.Users.Where(u => u.Email == user.Email).AnyAsync())
+                return RedirectToAction("Index", new { message = IndexMessage.EmailTaken });
+
+            var temp = user;
+            temp.Id = Guid.NewGuid().ToString();
+            temp.Login = temp.Login.ToLower();
+            temp.Password = await InputManager.EncryptPassword(passwordString, temp.Id, _context);
+            temp.Email = InputManager.ParseEmail(temp.Email);
+
+            temp.VerificationCode = new VerificationCodeModel
             {
-                var temp = user;
-                temp.Id = Guid.NewGuid().ToString();
-                await _context.AddAsync(user);
-                await _context.SaveChangesAsync();
+                UserModelId = temp.Id,
+                RadnomUriCode = await AuthService.SendEmail(temp.Email, temp.Login, EmailType.Email_Verification)
+            };
 
-                return RedirectToAction("Index", new { message = IndexMessage.AccountCreated });
-            }
+            await _context.AddAsync(user);
+            await _context.SaveChangesAsync();
 
-            return RedirectToAction("Index", new { message = IndexMessage.LoginTaken });
+            return RedirectToAction("Index", new { message = IndexMessage.AccountCreated });
         }
 
         public IActionResult Logout()

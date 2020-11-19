@@ -1,7 +1,9 @@
 using System;
-using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
+using JustLearnIT.AzureServices;
 using JustLearnIT.Data;
+using JustLearnIT.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -25,22 +27,23 @@ namespace JustLearnIT
 
         public void ConfigureServices(IServiceCollection services)
         {
+            #region static class vars assign
+            InputManager.Re = new Regex("[.]");
+            InputManager.PBKDF2 = Array.ConvertAll(KeyVaultService.GetSecretByName("PBKDF2--params").Split(';'), s => int.Parse(s));
+            AuthService.CreateSMTPClient(KeyVaultService.GetSecretByName("SMTP--PASS"));
+            BlobStorageService.BlobConnectionString = KeyVaultService.GetSecretByName("ConnectionStrings--BlobSotrage");
+            #endregion
+
             services.AddControllersWithViews();
 
-            //Paste connection string directly to var or 'UseSqlServer()' option if you want to make migration with NuGet console
-            // or create something with EFCore.Design
-            //var connStr = "";
-            //services.AddDbContext<DatabaseContext>(options =>
-            //    options.UseSqlServer(connStr));
-
             services.AddDbContext<DatabaseContext>(options =>
-                options.UseSqlServer(AzureServices.KeyVaultService.GetSecretByName("ConnectionStrings--justlearnitdb")));
+                options.UseLazyLoadingProxies().UseSqlServer(KeyVaultService.GetSecretByName("ConnectionStrings--justlearnitdb")));
 
             services.AddSession();
             services.AddDistributedMemoryCache();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-            var symmetricKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(AzureServices.KeyVaultService.GetSecretByName("JWT--Key")));
+            var symmetricKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(KeyVaultService.GetSecretByName("JWT--Key")));
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(opt =>
