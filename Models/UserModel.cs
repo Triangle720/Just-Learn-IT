@@ -29,7 +29,7 @@ namespace JustLearnIT.Models
         // about Email regex: sometimes people are using upper letters in emails... + email id may contain '.' (though it mean nothing)
         [NotNull]
         [Required]
-        [RegularExpression(@"^[a-zA-Z0-9.]*@[a-zA-Z0-9.]*\.[a-zA-Z]{1,3}$", ErrorMessage = "wrong e-mail format")]
+        [RegularExpression(@"^[a-zA-Z0-9][a-zA-Z0-9.]*[a-zA-Z0-9]@[a-zA-Z0-9.]*\.[a-zA-Z]{1,3}$", ErrorMessage = "wrong e-mail format")]
         public string Email { get; set; }
 
         public DateTime AccountCreationTime { get; set; } = DateTime.Now;
