@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Security.Cryptography;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -51,20 +50,25 @@ namespace JustLearnIT.Security
             return false;
         }
 
-        // protection against multi-accounting on one e-mail address
+        // protection against multi-accounting on one e-mail address (gmail)
         public static string ParseEmail(string email)
         {
             email = email.ToLower();
 
-            var emailId = email.Substring(0, email.IndexOf('@'));
-            email = email.Remove(0, email.IndexOf('@'));
-
-            if (emailId.Contains('.'))
+            if (email.Contains("@gmail"))
             {
-                emailId = Re.Replace(emailId, string.Empty);
+                var emailId = email.Substring(0, email.IndexOf('@'));
+                email = email.Remove(0, email.IndexOf('@'));
+
+                if (emailId.Contains('.'))
+                {
+                    emailId = Re.Replace(emailId, string.Empty);
+                }
+
+                return string.Concat(emailId, email);
             }
 
-            return string.Concat(emailId, email);
+            return email;
         }
     }
 }

@@ -2,7 +2,7 @@
 using Microsoft.WindowsAzure.Storage.Blob;
 using System.Threading.Tasks;
 
-namespace JustLearnIT.AzureServices
+namespace JustLearnIT.Services
 {
     public static class BlobStorageService
     {

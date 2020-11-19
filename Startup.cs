@@ -1,7 +1,7 @@
 using System;
 using System.Text;
 using System.Text.RegularExpressions;
-using JustLearnIT.AzureServices;
+using JustLearnIT.Services;
 using JustLearnIT.Data;
 using JustLearnIT.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -30,7 +30,7 @@ namespace JustLearnIT
             #region static class vars assign
             InputManager.Re = new Regex("[.]");
             InputManager.PBKDF2 = Array.ConvertAll(KeyVaultService.GetSecretByName("PBKDF2--params").Split(';'), s => int.Parse(s));
-            AuthService.CreateSMTPClient(KeyVaultService.GetSecretByName("SMTP--PASS"));
+            EmailService.CreateSMTPClient(KeyVaultService.GetSecretByName("SMTP--PASS"));
             BlobStorageService.BlobConnectionString = KeyVaultService.GetSecretByName("ConnectionStrings--BlobSotrage");
             #endregion
 

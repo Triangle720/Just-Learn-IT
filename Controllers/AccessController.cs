@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using JustLearnIT.Data;
 using JustLearnIT.Models;
 using JustLearnIT.Security;
+using JustLearnIT.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -130,7 +131,7 @@ namespace JustLearnIT.Controllers
             temp.VerificationCode = new VerificationCodeModel
             {
                 UserModelId = temp.Id,
-                RadnomUriCode = await AuthService.SendEmail(temp.Email, temp.Login, EmailType.Email_Verification)
+                RadnomUriCode = await EmailService.SendEmail(temp.Email, temp.Login, EmailType.Email_Verification)
             };
 
             await _context.AddAsync(user);

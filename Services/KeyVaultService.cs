@@ -3,7 +3,7 @@ using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
 using System;
 
-namespace JustLearnIT.AzureServices
+namespace JustLearnIT.Services
 {
     public static class KeyVaultService
     {
