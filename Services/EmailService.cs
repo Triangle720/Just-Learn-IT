@@ -48,24 +48,9 @@ namespace JustLearnIT.Services
 
         private static async Task<string> GetMessage(EmailType type, string username, string generatedString)
         {
-            string content = await BlobStorageService.GetTextFromFileByName(Enum.GetName(typeof(EmailType), type), "email");
-
-            switch (type)
-            {
-                case EmailType.Email_Verification:
-                    content = content.Replace("VER_URL", generatedString);
-                    break;
-                case EmailType.Login_Verification:
-                    content = content.Replace("LOGIN_CODE", generatedString); // waiting for implementation
-                    break;
-                case EmailType.Password_Restart:
-                    content = content.Replace("TEMP_PASS", generatedString); // waiting for implementation
-                    break;
-            }
-
-            content = content.Replace("TITLE", Enum.GetName(typeof(EmailType), type));
+            string content = await BlobStorageService.GetTextFromFileByName(Enum.GetName(typeof(EmailType), type) + ".html", "email");
+            content = content.Replace("GENERATED", generatedString);
             content = content.Replace("USER_NAME", username);
-
             return content;
         }
 

@@ -13,7 +13,7 @@ namespace JustLearnIT.Data
         public DbSet<UserModel> Users { get; set; }
         public DbSet<CourseModel> Courses { get; set; }
         public DbSet<SaltModel> Salts { get; set; }
-        public DbSet<TrustedDeviceModel> TrustedDevices { get; set; }
         public DbSet<VerificationCodeModel> VerificationCodes { get; set; }
+        public DbSet<OneTimePassword> OneTimePasswords { get; set; }
     }
 }

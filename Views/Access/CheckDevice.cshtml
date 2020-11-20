@@ -1,0 +1,25 @@
+﻿@model string
+@{
+    ViewData["Title"] = "Check Device";
+    string userId = Model;
+}
+
+<div class="row justify-content-center" style="margin-top: 20%;">
+    <div class="col-md-5 text-center">
+        <h1>Device verification...</h1>
+        @if (!string.IsNullOrEmpty(Model))
+        {
+            <script>
+            if (localStorage.getItem('@userId')) {
+                window.location.href = "@Url.Action("AcceptLogin", "Access", new { userId })";
+            } else {
+                window.location.href = "@Url.Action("SendLoginPassword", "Access", new { userId })";
+            }
+            </script>
+        }
+        else
+        {
+            <h1 class="text-danger">Are you lost? :)</h1>
+        }
+    </div>
+</div>

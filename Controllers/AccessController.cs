@@ -1,7 +1,6 @@
 ﻿using System;
-using System.IdentityModel.Tokens.Jwt;
+using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using JustLearnIT.Data;
 using JustLearnIT.Models;
@@ -37,6 +36,7 @@ namespace JustLearnIT.Controllers
         [AllowAnonymous]
         public IActionResult Index(IndexMessage message = IndexMessage.None)
         {
+            /* It needs to be changed (looks a bit ugly and work not good at all) */
             switch (message)
             {
                 case IndexMessage.IncorrectLogin:
@@ -62,6 +62,37 @@ namespace JustLearnIT.Controllers
             return View();
         }
 
+        #region Register & email verification
+
+        [AllowAnonymous]
+        public async Task<IActionResult> Register([Bind("Login, Email")] UserModel user, string passwordString)
+        {
+            if (await _context.Users.Where(u => u.Login == user.Login).AnyAsync())
+                return RedirectToAction("Index", new { message = IndexMessage.LoginTaken });
+
+            else if (await _context.Users.Where(u => u.Email == user.Email).AnyAsync())
+                return RedirectToAction("Index", new { message = IndexMessage.EmailTaken });
+
+            var temp = user;
+            temp.Id = Guid.NewGuid().ToString();
+            temp.Login = temp.Login.ToLower();
+            temp.Password = await InputManager.EncryptPassword(passwordString, temp.Id, _context);
+            temp.Email = InputManager.ParseEmail(temp.Email);
+            temp.AccountCreationTime = DateTime.Now;
+            temp.Role = Role.USER;
+
+            temp.VerificationCode = new VerificationCodeModel
+            {
+                UserModelId = temp.Id,
+                RadnomUriCode = await EmailService.SendEmail(temp.Email, temp.Login, EmailType.Email_Verification)
+            };
+
+            await _context.AddAsync(user);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index", new { message = IndexMessage.AccountCreated });
+        }
+
         [Route("Access/Verify/{key?}")]
         public async Task<IActionResult> Verify(string key = "")
         {
@@ -85,8 +116,11 @@ namespace JustLearnIT.Controllers
             return View(false);
         }
 
+        #endregion
+
+        #region Login & two factor auth (if device is not trusted yet)
         [AllowAnonymous]
-        public async Task<IActionResult> Login([Bind("Login")] UserModel user, string passwordString)
+        public async Task<IActionResult> Login(UserModel user, string passwordString)
         {
             var temp = await _context.Users.Where(u => u.Login == user.Login.ToLower()).FirstOrDefaultAsync();
 
@@ -94,51 +128,90 @@ namespace JustLearnIT.Controllers
             {
                 if (await InputManager.CheckPassword(passwordString, temp.Id, temp.Password, _context))
                 {
-                    if (!temp.IsVerified) return RedirectToAction("Index", new { message = IndexMessage.NotVerified }); ;
+                    if (!temp.IsVerified) return RedirectToAction("Index", new { message = IndexMessage.NotVerified });
 
-                    var token = await AuthService.AssignToken(temp);
-
-                    JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
-                    string tokenString = tokenHandler.WriteToken(token);
-                    JwtSecurityToken jwtToken = tokenHandler.ReadJwtToken(tokenString);
-
-                    HttpContext.Session.SetString("LOGIN", jwtToken.Audiences.ToArray()[0]);
-                    HttpContext.Session.SetString("TOKEN", tokenString);
-                    HttpContext.Session.SetString("ROLE", jwtToken.Claims.First(x => x.Type.ToString().Equals(ClaimTypes.Role)).Value);
-
-                    return RedirectToAction("Index", "Home");
+                    HttpContext.Session.SetString("Statement", "Logging In"); // Set statement string
+                    return RedirectToAction("CheckDevice", temp); // check device
                 }
             }
 
             return RedirectToAction("Index", new { message = IndexMessage.IncorrectLogin });
         }
 
-        [AllowAnonymous]
-        public async Task<IActionResult> Register([Bind("Login, Email")] UserModel user, string passwordString)
+        // JS checks if user has 'special' string inside localStorage, if not : send email -> go to OTPassword, else : AcceptLogin
+        public IActionResult CheckDevice(UserModel user)
         {
-            if (await _context.Users.Where(u => u.Login == user.Login).AnyAsync())
-                return RedirectToAction("Index", new { message = IndexMessage.LoginTaken });
-
-            else if (await _context.Users.Where(u => u.Email == user.Email).AnyAsync())
-                return RedirectToAction("Index", new { message = IndexMessage.EmailTaken });
-
-            var temp = user;
-            temp.Id = Guid.NewGuid().ToString();
-            temp.Login = temp.Login.ToLower();
-            temp.Password = await InputManager.EncryptPassword(passwordString, temp.Id, _context);
-            temp.Email = InputManager.ParseEmail(temp.Email);
-
-            temp.VerificationCode = new VerificationCodeModel
+            if (HttpContext.Session.GetString("Statement") == "Logging In")
             {
-                UserModelId = temp.Id,
-                RadnomUriCode = await EmailService.SendEmail(temp.Email, temp.Login, EmailType.Email_Verification)
-            };
+                if (_context.Users.Contains(user)) return View("CheckDevice", user.Id);
+            }
 
-            await _context.AddAsync(user);
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction("Index", new { message = IndexMessage.AccountCreated });
+            return RedirectToAction("Index", "Home");
         }
+
+        // So far the method sends the password only once.The password has no expiration time for now.
+        public async Task<IActionResult> SendLoginPassword(string userId)
+        {
+            var user = await _context.Users.Where(u => u.Id == userId).FirstAsync();
+
+            if (user.OneTimePass == null)
+            {
+                var pass = new OneTimePassword
+                {
+                    UserModelId = user.Id,
+                    Value = await EmailService.SendEmail(user.Email, user.Login, EmailType.Login_Verification)
+                };
+                user.OneTimePass = pass;
+
+                _context.Entry(user).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction("OTPassword", "Access", new { userId = user.Id });
+        }
+
+        // Get generated password from user
+        public IActionResult OTPassword(string userId)
+        {
+            // only when user is during login
+            if (HttpContext.Session.GetString("Statement") == "Logging In" && _context.OneTimePasswords.Where(p => p.UserModelId == userId).Any())
+            {
+                return View("OTPassword", userId);
+            }
+
+            return RedirectToAction("Index", "Home");
+        }
+
+        // check if generated password match with input
+        public async Task<IActionResult> CheckTrustedDevicePassword(Dictionary<string, string> parms)
+        {
+            if (HttpContext.Session.GetString("Statement") == "Logging In")
+            {
+                var user = await _context.Users.Where(u => u.Id == parms["userId"]).FirstAsync();
+
+                if (parms["password"] == user.OneTimePass.Value)
+                {
+                    _context.Remove(user.OneTimePass);
+                    await _context.SaveChangesAsync();
+                    return await AcceptLogin(user.Id);
+                }
+
+                ViewBag.Error = "Wrong code!";
+                return View("OTPassword", user.Id);
+            }
+            else return RedirectToAction("Index", "Home");
+        }
+
+        // FINALLY: User i logged in
+        public async Task<IActionResult> AcceptLogin(string userId)
+        {
+            var user = await _context.Users.Where(u => u.Id == userId).FirstAsync();
+            await AuthService.SetJWT(user, HttpContext);
+            HttpContext.Session.Remove("Statement");
+            var x = HttpContext.Session;
+            return RedirectToAction("Index", "Home");
+        }
+        #endregion
 
         public IActionResult Logout()
         {

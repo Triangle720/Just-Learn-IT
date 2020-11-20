@@ -7,6 +7,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using System.Linq;
 
 namespace JustLearnIT.Security
 {
@@ -39,6 +41,19 @@ namespace JustLearnIT.Security
                 );
 
             return Task.FromResult(token);
+        }
+
+        public static async Task SetJWT(UserModel user, HttpContext context)
+        {
+            var token = await AssignToken(user);
+
+            JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
+            string tokenString = tokenHandler.WriteToken(token);
+            JwtSecurityToken jwtToken = tokenHandler.ReadJwtToken(tokenString);
+
+            context.Session.SetString("LOGIN", jwtToken.Audiences.ToArray()[0]);
+            context.Session.SetString("TOKEN", tokenString);
+            context.Session.SetString("ROLE", jwtToken.Claims.First(x => x.Type.ToString().Equals(ClaimTypes.Role)).Value);
         }
         #endregion
     }
