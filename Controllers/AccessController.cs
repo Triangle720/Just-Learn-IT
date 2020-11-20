@@ -70,7 +70,7 @@ namespace JustLearnIT.Controllers
             if (await _context.Users.Where(u => u.Login == user.Login).AnyAsync())
                 return RedirectToAction("Index", new { message = IndexMessage.LoginTaken });
 
-            else if (await _context.Users.Where(u => u.Email == user.Email).AnyAsync())
+            else if (await _context.Users.Where(u => u.Email == InputManager.ParseEmail(user.Email)).AnyAsync())
                 return RedirectToAction("Index", new { message = IndexMessage.EmailTaken });
 
             var temp = user;

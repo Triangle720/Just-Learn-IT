@@ -62,7 +62,7 @@ namespace JustLearnIT.Services
             var results = Convert.ToBase64String(bytes);
                 
             if (length == (int)EmailType.Email_Verification) 
-                return Regex.Replace(results.Remove(length, results.Length - length), "[/+]", "x"); // remove '/' & '+' from Url
+                return Regex.Replace(results.Remove(length, results.Length - length), "[/+]", "Q"); // Replace '/' & '+' in Url
 
             else return results.Remove(length, results.Length - length);
         }
