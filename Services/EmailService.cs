@@ -59,7 +59,12 @@ namespace JustLearnIT.Services
             using var rng = new RNGCryptoServiceProvider();
             var bytes = new byte[length];
             rng.GetBytes(bytes);
-            return Regex.Replace(Convert.ToBase64String(bytes), "[/+]", "x");
+            var results = Convert.ToBase64String(bytes);
+                
+            if (length == (int)EmailType.Email_Verification) 
+                return Regex.Replace(results.Remove(length, results.Length - length), "[/+]", "x"); // remove '/' & '+' from Url
+
+            else return results.Remove(length, results.Length - length);
         }
     }
 }

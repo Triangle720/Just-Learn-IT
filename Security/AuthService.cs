@@ -34,8 +34,8 @@ namespace JustLearnIT.Security
 
             var token = new JwtSecurityToken(
                 issuer: "INO",
-                audience: user.Login.ToString(),
-                expires: DateTime.Now.AddMinutes(60),
+                audience: user.Login.ToString().ToLower(),
+                expires: DateTime.Now.AddMinutes(180),
                 signingCredentials: signingCredentials,
                 claims: claims
                 );

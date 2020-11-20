@@ -75,7 +75,6 @@ namespace JustLearnIT.Controllers
 
             var temp = user;
             temp.Id = Guid.NewGuid().ToString();
-            temp.Login = temp.Login.ToLower();
             temp.Password = await InputManager.EncryptPassword(passwordString, temp.Id, _context);
             temp.Email = InputManager.ParseEmail(temp.Email);
             temp.AccountCreationTime = DateTime.Now;
@@ -122,7 +121,7 @@ namespace JustLearnIT.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Login(UserModel user, string passwordString)
         {
-            var temp = await _context.Users.Where(u => u.Login == user.Login.ToLower()).FirstOrDefaultAsync();
+            var temp = await _context.Users.Where(u => u.Login == user.Login).FirstOrDefaultAsync();
 
             if (temp != null)
             {
@@ -131,7 +130,7 @@ namespace JustLearnIT.Controllers
                     if (!temp.IsVerified) return RedirectToAction("Index", new { message = IndexMessage.NotVerified });
 
                     HttpContext.Session.SetString("Statement", "Logging In"); // Set statement string
-                    return RedirectToAction("CheckDevice", temp); // check device
+                    return RedirectToAction("CheckDevice", "Access", new { userId = temp.Id }); // check device
                 }
             }
 
@@ -139,11 +138,12 @@ namespace JustLearnIT.Controllers
         }
 
         // JS checks if user has 'special' string inside localStorage, if not : send email -> go to OTPassword, else : AcceptLogin
-        public IActionResult CheckDevice(UserModel user)
+        public IActionResult CheckDevice(string userId)
         {
             if (HttpContext.Session.GetString("Statement") == "Logging In")
             {
-                if (_context.Users.Contains(user)) return View("CheckDevice", user.Id);
+                var user = _context.Users.Where(u => u.Id == userId).First();
+                if (_context.Users.Contains(user)) return View("CheckDevice", userId);
             }
 
             return RedirectToAction("Index", "Home");
@@ -202,7 +202,7 @@ namespace JustLearnIT.Controllers
             else return RedirectToAction("Index", "Home");
         }
 
-        // FINALLY: User i logged in
+        // FINALLY: User is logged in
         public async Task<IActionResult> AcceptLogin(string userId)
         {
             var user = await _context.Users.Where(u => u.Id == userId).FirstAsync();
