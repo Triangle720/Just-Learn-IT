@@ -67,10 +67,10 @@ namespace JustLearnIT.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Register([Bind("Login, Email")] UserModel user, string passwordString)
         {
-            if (await _context.Users.Where(u => u.Login == user.Login).AnyAsync())
+            if (_context.Users.Where(u => u.Login == user.Login).Any())
                 return RedirectToAction("Index", new { message = IndexMessage.LoginTaken });
 
-            else if (await _context.Users.Where(u => u.Email == InputManager.ParseEmail(user.Email)).AnyAsync())
+            else if (_context.Users.Where(u => u.Email == InputManager.ParseEmail(user.Email)).Any())
                 return RedirectToAction("Index", new { message = IndexMessage.EmailTaken });
 
             var temp = user;
@@ -79,7 +79,6 @@ namespace JustLearnIT.Controllers
             temp.Email = InputManager.ParseEmail(temp.Email);
             temp.AccountCreationTime = DateTime.Now;
             temp.Role = Role.USER;
-
             temp.VerificationCode = new VerificationCodeModel
             {
                 UserModelId = temp.Id,
