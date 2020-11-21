@@ -51,8 +51,8 @@
             </div>
             <div class="row justify-content-center">
                 <div class="col-8 text-center">
-                    <p> Your device is <text id="trust_text" style="color:red;">not trusted</text></p>
-                    <input id="trust_btn" class="btn btn-primary" type="button" value="change" />
+                    <p> Your device is <text id="trust_text"></text></p>
+                    <input class="btn btn-primary" type="button" value="change" onclick="changeTrustState()" />
                 </div>
             </div>
         </div>
@@ -60,5 +60,29 @@
 </div>
 
 <script>
+    function changeTrustText() {
+        var trustText = document.getElementById('trust_text');
 
+        if (localStorage.getItem('@Model.Id' + '_JustLearnIT')) {
+            trustText.innerHTML = "trusted";
+            trustText.style.color = "green";
+        }
+        else {
+            trustText.innerHTML = "not trusted";
+            trustText.style.color = "red";
+        }
+    }
+
+    function changeTrustState() {
+        if (localStorage.getItem('@Model.Id' + '_JustLearnIT')) {
+            localStorage.removeItem('@Model.Id' + '_JustLearnIT');
+        }
+        else {
+            localStorage.setItem('@Model.Id' + '_JustLearnIT', "TrustedMember");
+        }
+
+        changeTrustText();
+    }
+
+    changeTrustText();
 </script>

@@ -28,7 +28,6 @@ namespace JustLearnIT.Controllers
         [RoleAuthFilter("ADMIN,USER")]
         public IActionResult Profile()
         {
-            //var user = _context.Users.Where(u => u.Login == "test").FirstOrDefault();
             var user = _context.Users.Where(u => u.Login == HttpContext.Session.GetString("LOGIN")).FirstOrDefault();
             return View(user);
         }

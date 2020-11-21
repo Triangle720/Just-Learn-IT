@@ -196,7 +196,7 @@ namespace JustLearnIT.Controllers
                 {
                     _context.Remove(user.OneTimePass);
                     await _context.SaveChangesAsync();
-                    return await AcceptLogin(user.Id);
+                    return await AcceptLogin();
                 }
 
                 ViewBag.Error = "Wrong code!";
@@ -206,8 +206,9 @@ namespace JustLearnIT.Controllers
         }
 
         // FINALLY: User is logged in
-        public async Task<IActionResult> AcceptLogin(string userId)
+        public async Task<IActionResult> AcceptLogin()
         {
+            var userId = HttpContext.Session.GetString("LoggingIn");
             var user = await _context.Users.Where(u => u.Id == userId).FirstAsync();
             await AuthService.SetJWT(user, HttpContext);
             HttpContext.Session.Remove("LoggingIn");

@@ -13,11 +13,11 @@
         @if (!string.IsNullOrEmpty(userId))
         {
             <script>
-            if (localStorage.getItem('@userId')) {
-                window.location.href = "@Url.Action("AcceptLogin", "Access")";
-            } else {
-                window.location.href = "@Url.Action("SendLoginPassword", "Access")";
-            }
+                if (localStorage.getItem('@userId' + '_JustLearnIT')) {
+                    window.location.href = "@Url.Action("AcceptLogin", "Access")";
+                } else {
+                    window.location.href = "@Url.Action("SendLoginPassword", "Access")";
+                }
             </script>
         }
         else
