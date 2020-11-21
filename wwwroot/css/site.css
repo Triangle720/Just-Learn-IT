@@ -79,12 +79,12 @@ body {
 
 .text-box {
     width: 100%;
-    background-color:hsla(200, 100%, 50%, 0.2);
+    background-color: hsla(200, 100%, 50%, 0.2);
     border-color: black;
-    border:double;
+    border: double;
     display: inline-block;
-    margin-top:50px;
-    border-radius:25px;
+    margin-top: 50px;
+    border-radius: 25px;
 }
 
     .text-box h3, .text-box h5 {
@@ -97,4 +97,24 @@ body {
 
 .label-error {
     justify-content: space-between;
+}
+
+.profile-container {
+    padding:15px;
+}
+
+    .profile-container input {
+        width: 100px;
+    }
+
+    .profile-container hr {
+        width: 75%;
+    }
+
+.login-try-box {
+    padding: 20px;
+    background-color: pink;
+    border: dotted;
+    border-color: red;
+    border-radius: 10px;
 }

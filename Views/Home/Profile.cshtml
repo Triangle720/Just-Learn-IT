@@ -1,0 +1,64 @@
+﻿@model UserModel
+@{
+    ViewData["Title"] = "Profile";
+}
+
+<div class="profile-container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="text-center">
+                <h1>Profile settings</h1>
+                <hr />
+            </div>
+            <div class="text-center" style="margin-top:15px;">
+                <h3><b>Account</b></h3>
+                <hr style="width:50%;" />
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-8 text-center" style="margin-top:10px;">
+                    <h5>Login</h5>
+                    <p>@Model.Login</p>
+                    <h5>Creation Time</h5>
+                    <p>@Model.AccountCreationTime</p>
+                    <h5>Email</h5>
+                    <p>@Model.Email</p>
+                    <h5>Password</h5>
+                    <input id="pass_btn" class="btn btn-primary" type="button" value="change" />
+                    <form id="pass_form" hidden>
+                    </form>
+                </div>
+            </div>
+            <div class="text-center" style="margin-top:15px;">
+                <h3><b>Subscription</b></h3>
+                <hr style="width:50%;" />
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-8 text-center">
+                    @if (Model.Subscription)
+                    {
+                        <p class="text-success"><b>Subscription purchased!</b></p>
+                    }
+                    else
+                    {
+                        <p class="text-danger"><b>No Subscription</b></p>
+                        <input class="btn btn-primary" type="button" value="Buy" />
+                    }
+                </div>
+            </div>
+            <div class="text-center" style="margin-top:15px;">
+                <h3><b>Device</b></h3>
+                <hr style="width:50%;" />
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-8 text-center">
+                    <p> Your device is <text id="trust_text" style="color:red;">not trusted</text></p>
+                    <input id="trust_btn" class="btn btn-primary" type="button" value="change" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+</script>

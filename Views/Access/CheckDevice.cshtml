@@ -1,20 +1,22 @@
-﻿@model string
+﻿@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor httpContextAccessor
+
 @{
     ViewData["Title"] = "Check Device";
     Layout = "~/Views/Shared/_LoginAction.cshtml";
-    string userId = Model;
+    string userId = httpContextAccessor.HttpContext.Session.GetString("LoggingIn");
 }
 
 <div class="row justify-content-center" style="margin-top: 30%;">
     <div class="col-md-5 text-center">
         <h1>Device verification...</h1>
-        @if (!string.IsNullOrEmpty(Model))
+        @if (!string.IsNullOrEmpty(userId))
         {
             <script>
             if (localStorage.getItem('@userId')) {
-                window.location.href = "@Url.Action("AcceptLogin", "Access", new { userId })";
+                window.location.href = "@Url.Action("AcceptLogin", "Access")";
             } else {
-                window.location.href = "@Url.Action("SendLoginPassword", "Access", new { userId })";
+                window.location.href = "@Url.Action("SendLoginPassword", "Access")";
             }
             </script>
         }

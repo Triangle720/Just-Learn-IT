@@ -3,6 +3,10 @@
 
 @model JustLearnIT.Models.UserModel
 
+@*--------------------------------------------
+    TODO:  passwordString validation
+--------------------------------------------*@
+
 @{
     ViewData["Title"] = "Access";
     string passwordString = "";
@@ -10,7 +14,19 @@
 
 @if (httpContextAccessor.HttpContext.Session.GetString("TOKEN") == null)
 {
-    <div class="row align-items-center justify-content-center" style="margin-top:7.5%">
+    @if(httpContextAccessor.HttpContext.Session.GetString("LoggingIn") != null)
+    {
+        <div class="row justify-content-center">
+            <div class="col-md-5">
+                <div class="login-try-box text-center" style="margin-top:10px;">
+                    <h3><b>Hey!</b></h3>
+                    <p>It seems that you are during login process</p>
+                    <p>Click <a asp-action="OTPassword">HERE</a> to continue.</p>
+                </div>
+            </div>
+        </div>
+    }
+    <div class="row align-items-center justify-content-center" style="margin-top:5%">
         <div class="col-md-4">
             <div class="text-center">
                 <h1>Sign In</h1>
@@ -19,13 +35,16 @@
                 <div class="form-group">
                     <div class="form-label label-error">
                         <label asp-for="Login" class="control-label"></label>
-                        <text class="text-danger">@ViewBag.LoginErr</text>
+                        <span asp-validation-for="Login" class="text-danger">@ViewBag.RegisterMessage</span>
                     </div>
-                    <input asp-for="Login" class="form-control" autocomplete="off" />
+                    <input asp-for="Login" class="form-control" autocomplete="off" maxlength="20" />
                 </div>
                 <div class="form-group">
                     <label asp-for="Password" class="control-label"></label>
-                    <input asp-for="@passwordString" type="password" class="form-control" />
+                    <input asp-for="@passwordString" type="password" class="form-control" maxlength="256" pattern="^.{6,256}$" />
+                </div>
+                <div class="text-center">
+                    <text class="text-danger">@ViewBag.LoginErr</text>
                 </div>
                 <div class="form-group text-center">
                     <input type="submit" value="Sign in" class="btn btn-primary" />
@@ -48,14 +67,14 @@
                         <label asp-for="Login" class="control-label"></label>
                         <span asp-validation-for="Login" class="text-danger">@ViewBag.RegisterMessage</span>
                     </div>
-                    <input asp-for="Login" class="form-control" autocomplete="off" />
+                    <input asp-for="Login" class="form-control" autocomplete="off" maxlength="20"/>
                 </div>
                 <div class="form-group">
                     <div class="form-label label-error">
                         <label asp-for="Password" class="control-label"></label>
-                        <span asp-validation-for="Password" class="text-danger"></span>
+                        <span asp-validation-for="@passwordString" class="text-danger"></span>
                     </div>
-                    <input asp-for="@passwordString" type="password" class="form-control" />
+                    <input asp-for="@passwordString" type="password" class="form-control" maxlength="256" pattern="^.{6,256}$"/>
                 </div>
                 <div class="form-group">
                     <div class="form-label label-error">
@@ -79,8 +98,8 @@
                     <strong>RegularExpression: ^[a-zA-Z0-9]{4,20}$</strong>
                 </text>
                 <text>
-                    Your <strong>PASSWORD</strong> should contain at least 6 characters (max. 256). Use letters, digits and special characters. Try to create the longest and hardest password possible!
-                    <strong>RegularExpression: ^[ -!#-&(-~]{6,256}$</strong>
+                    Your <strong>PASSWORD</strong> should contain at least 6 characters (max. 256). Use every character You want. Try to create the longest and hardest password possible!
+                    <strong>RegularExpression: ^.{6,256}$</strong>
                 </text>
             </div>
         </div>
@@ -94,6 +113,6 @@
 else
 {
     <div class="text-center">
-        <h1 class="text-danger" style="margin-top:20%;">Are you lost? :)</h1>
+        <h1 class="text-danger" style="margin-top:20%;">You are already logged in :)</h1>
     </div>
 }

@@ -23,14 +23,20 @@
                     <ul class="navbar-nav flex-grow-1">
                         @if (httpContextAccessor.HttpContext.Session.GetString("TOKEN") != null)
                         {
+                            @*<li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Home" asp-action="Courses">Courses</a>
+                            </li>*@
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Access" asp-action="Logout">Logout</a>
+                                <a class="nav-link text-dark" asp-controller="Home" asp-action="Profile">Profile</a>
+                            </li>
+                            <li class="nav-item" style="float:right;">
+                                <a class="nav-link text-dark" asp-controller="Access" asp-action="Logout">Logout</a>
                             </li>
                         }
                         else
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Access" asp-action="Index">Sign In</a>
+                                <a class="nav-link text-dark" asp-controller="Access" asp-action="Index">Sign In</a>
                             </li>
                         }
                     </ul>

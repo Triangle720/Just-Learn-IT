@@ -94,24 +94,18 @@ namespace JustLearnIT.Controllers
         [Route("Access/Verify/{key?}")]
         public async Task<IActionResult> Verify(string key = "")
         {
-            if (key != string.Empty)
+            var user = await _context.Users.Where(u => u.VerificationCode.RadnomUriCode == key).FirstOrDefaultAsync();
+
+            if (user != null)
             {
-                var user = await _context.Users.Where(u => u.VerificationCode.RadnomUriCode == key).FirstOrDefaultAsync();
-
-                if (user != null)
-                {
-                    user.IsVerified = true;
-                    _context.Entry(user).State = EntityState.Modified;
-                    _context.Remove(user.VerificationCode);
-                    await _context.SaveChangesAsync();
-
-                    ViewBag.Message = "Account verified successfully!";
-                    return View(true);
-                }
+                user.IsVerified = true;
+                _context.Entry(user).State = EntityState.Modified;
+                _context.Remove(user.VerificationCode);
+                await _context.SaveChangesAsync();
+                HttpContext.Session.SetString("Verification", "Success");
             }
 
-            ViewBag.Message = "Are you lost? :)";
-            return View(false);
+            return View();
         }
 
         #endregion
@@ -128,8 +122,8 @@ namespace JustLearnIT.Controllers
                 {
                     if (!temp.IsVerified) return RedirectToAction("Index", new { message = IndexMessage.NotVerified });
 
-                    HttpContext.Session.SetString("Statement", "Logging In"); // Set statement string
-                    return RedirectToAction("CheckDevice", "Access", new { userId = temp.Id }); // check device
+                    HttpContext.Session.SetString("LoggingIn", temp.Id); // Set statement string
+                    return RedirectToAction("CheckDevice", "Access"); // check device
                 }
             }
 
@@ -137,58 +131,68 @@ namespace JustLearnIT.Controllers
         }
 
         // JS checks if user has 'special' string inside localStorage, if not : send email -> go to OTPassword, else : AcceptLogin
-        public IActionResult CheckDevice(string userId)
+        public IActionResult CheckDevice()
         {
-            if (HttpContext.Session.GetString("Statement") == "Logging In")
+            var userId = HttpContext.Session.GetString("LoggingIn");
+
+            if (userId != null)
             {
                 var user = _context.Users.Where(u => u.Id == userId).First();
-                if (_context.Users.Contains(user)) return View("CheckDevice", userId);
+                if (_context.Users.Contains(user)) return View("CheckDevice");
             }
 
             return RedirectToAction("Index", "Home");
         }
 
         // So far the method sends the password only once.The password has no expiration time for now.
-        public async Task<IActionResult> SendLoginPassword(string userId)
+        public async Task<IActionResult> SendLoginPassword()
         {
-            var user = await _context.Users.Where(u => u.Id == userId).FirstAsync();
-
-            if (user.OneTimePass == null)
+            var userId = HttpContext.Session.GetString("LoggingIn");
+            if (userId != null)
             {
-                var pass = new OneTimePassword
+                var user = await _context.Users.Where(u => u.Id == userId).FirstAsync();
+
+                if (user.OneTimePass == null)
                 {
-                    UserModelId = user.Id,
-                    Value = await EmailService.SendEmail(user.Email, user.Login, EmailType.Login_Verification)
-                };
-                user.OneTimePass = pass;
+                    var pass = new OneTimePassword
+                    {
+                        UserModelId = user.Id,
+                        Value = await EmailService.SendEmail(user.Email, user.Login, EmailType.Login_Verification)
+                    };
+                    user.OneTimePass = pass;
 
-                _context.Entry(user).State = EntityState.Modified;
-                await _context.SaveChangesAsync();
+                    _context.Entry(user).State = EntityState.Modified;
+                    await _context.SaveChangesAsync();
+                }
+                return RedirectToAction("OTPassword", "Access");
             }
-
-            return RedirectToAction("OTPassword", "Access", new { userId = user.Id });
+            return RedirectToAction("Index", "Home");
         }
 
         // Get generated password from user
-        public IActionResult OTPassword(string userId)
+        public IActionResult OTPassword()
         {
+            var userId = HttpContext.Session.GetString("LoggingIn");
+
             // only when user is during login
-            if (HttpContext.Session.GetString("Statement") == "Logging In" && _context.OneTimePasswords.Where(p => p.UserModelId == userId).Any())
+            if (userId != null && _context.OneTimePasswords.Where(p => p.UserModelId == userId).Any())
             {
-                return View("OTPassword", userId);
+                return View("OTPassword");
             }
 
             return RedirectToAction("Index", "Home");
         }
 
         // check if generated password match with input
-        public async Task<IActionResult> CheckTrustedDevicePassword(Dictionary<string, string> parms)
+        public async Task<IActionResult> CheckTrustedDevicePassword(string code)
         {
-            if (HttpContext.Session.GetString("Statement") == "Logging In")
-            {
-                var user = await _context.Users.Where(u => u.Id == parms["userId"]).FirstAsync();
+            var userId = HttpContext.Session.GetString("LoggingIn");
 
-                if (parms["password"] == user.OneTimePass.Value)
+            if (userId != null)
+            {
+                var user = await _context.Users.Where(u => u.Id == userId).FirstAsync();
+
+                if (code == user.OneTimePass.Value)
                 {
                     _context.Remove(user.OneTimePass);
                     await _context.SaveChangesAsync();
@@ -196,7 +200,7 @@ namespace JustLearnIT.Controllers
                 }
 
                 ViewBag.Error = "Wrong code!";
-                return View("OTPassword", user.Id);
+                return View("OTPassword");
             }
             else return RedirectToAction("Index", "Home");
         }
@@ -206,8 +210,7 @@ namespace JustLearnIT.Controllers
         {
             var user = await _context.Users.Where(u => u.Id == userId).FirstAsync();
             await AuthService.SetJWT(user, HttpContext);
-            HttpContext.Session.Remove("Statement");
-            var x = HttpContext.Session;
+            HttpContext.Session.Remove("LoggingIn");
             return RedirectToAction("Index", "Home");
         }
         #endregion
