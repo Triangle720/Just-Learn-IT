@@ -209,9 +209,14 @@ namespace JustLearnIT.Controllers
         public async Task<IActionResult> AcceptLogin()
         {
             var userId = HttpContext.Session.GetString("LoggingIn");
-            var user = await _context.Users.Where(u => u.Id == userId).FirstAsync();
-            await AuthService.SetJWT(user, HttpContext);
-            HttpContext.Session.Remove("LoggingIn");
+
+            if(userId != null)
+            {
+                var user = await _context.Users.Where(u => u.Id == userId).FirstAsync();
+                await AuthService.SetJWT(user, HttpContext);
+                HttpContext.Session.Remove("LoggingIn");
+            }
+
             return RedirectToAction("Index", "Home");
         }
         #endregion
