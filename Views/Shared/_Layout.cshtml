@@ -1,5 +1,4 @@
-﻿@using Microsoft.AspNetCore.Http
-@inject IHttpContextAccessor httpContextAccessor
+﻿@inject IHttpContextAccessor httpContextAccessor
 
 <!DOCTYPE html>
 <html lang="en">
@@ -23,9 +22,9 @@
                     <ul class="navbar-nav flex-grow-1">
                         @if (httpContextAccessor.HttpContext.Session.GetString("TOKEN") != null)
                         {
-                            @*<li class="nav-item">
+                            <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="Home" asp-action="Courses">Courses</a>
-                            </li>*@
+                            </li>
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="Home" asp-action="Profile">Profile</a>
                             </li>
