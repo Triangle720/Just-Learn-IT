@@ -1,4 +1,5 @@
-﻿@inject IHttpContextAccessor httpContextAccessor
+﻿@model bool
+@inject IHttpContextAccessor httpContextAccessor
 
 @{
     ViewData["Title"] = "Courses";
@@ -11,13 +12,14 @@
             <hr />
             <h2 class="text-danger">PROJECT UNDER CONSTRUCTION</h2>
             <hr />
-            @if (httpContextAccessor.HttpContext.Session.GetString("SUB") == bool.TrueString)
+            @if (Model)
             {
                 <p class="text-success">Your subscription is active</p>
             }
             else
             {
-                <p class="text-danger">Your subscription is inactive</p>
+                <p class="text-danger">Your subscription is inactive.</p>
+                <p class="text-danger">Go to: <b>Profile -> Subscription</b> and buy subscription.</p>
             }
         </div>
     </div>

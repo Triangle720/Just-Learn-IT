@@ -24,9 +24,9 @@ namespace JustLearnIT.Security
 
         public void OnAuthorization(AuthorizationFilterContext context)
         {
-            var hasClaim = _roles.Contains(context.HttpContext.Session.GetString("ROLE"));
+            var role = AuthService.GetJWTRole(context.HttpContext.Session.GetString("TOKEN"));
 
-            if (!hasClaim)
+            if (!_roles.Contains(role))
             {
                 context.Result = new ForbidResult();
             }

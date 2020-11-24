@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using JustLearnIT.Data;
@@ -122,7 +121,7 @@ namespace JustLearnIT.Controllers
                 {
                     if (!temp.IsVerified) return RedirectToAction("Index", new { message = IndexMessage.NotVerified });
 
-                    HttpContext.Session.SetString("LoggingIn", temp.Id); // Set statement string
+                    HttpContext.Session.SetString("LoggingIn", temp.Id); // Set statement string <- Save 'temp' to cache memory instead or smth like that
                     return RedirectToAction("CheckDevice", "Access"); // check device
                 }
             }

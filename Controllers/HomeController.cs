@@ -1,7 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
-using JustLearnIT.Models;
+﻿using Microsoft.AspNetCore.Mvc;
 using JustLearnIT.Data;
 using Microsoft.AspNetCore.Authorization;
 using JustLearnIT.Security;
@@ -28,14 +25,18 @@ namespace JustLearnIT.Controllers
         [RoleAuthFilter("ADMIN,USER")]
         public IActionResult Profile()
         {
-            var user = _context.Users.Where(u => u.Login == HttpContext.Session.GetString("LOGIN")).FirstOrDefault();
+            var user = _context.Users.Where(u => u.Login == AuthService.GetJWTAudience(HttpContext.Session.GetString("TOKEN")))
+                                     .FirstOrDefault();
             return View(user);
         }
 
         [RoleAuthFilter("ADMIN,USER")]
         public IActionResult Courses()
         {
-            return View();
+            var subscription = _context.Users.Where(u => u.Login == AuthService.GetJWTAudience(HttpContext.Session.GetString("TOKEN")))
+                                             .FirstOrDefault()
+                                             .Subscription;
+            return View(subscription);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

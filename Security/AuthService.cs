@@ -49,12 +49,26 @@ namespace JustLearnIT.Security
 
             JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
             string tokenString = tokenHandler.WriteToken(token);
-            JwtSecurityToken jwtToken = tokenHandler.ReadJwtToken(tokenString);
 
             context.Session.SetString("TOKEN", tokenString);
-            context.Session.SetString("LOGIN", jwtToken.Audiences.ToArray()[0]);
-            context.Session.SetString("ROLE", jwtToken.Claims.First(x => x.Type.ToString().Equals(ClaimTypes.Role)).Value);
-            context.Session.SetString("SUB", user.Subscription.ToString());
+        }
+
+        public static string GetJWTRole(string tokenString)
+        {
+            if (string.IsNullOrEmpty(tokenString)) return string.Empty;
+
+            JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
+            var token = tokenHandler.ReadJwtToken(tokenString);
+            return token.Claims.First(x => x.Type.ToString().Equals(ClaimTypes.Role)).Value;
+        }
+
+        public static string GetJWTAudience(string tokenString)
+        {
+            if (string.IsNullOrEmpty(tokenString)) return string.Empty;
+
+            JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
+            var token = tokenHandler.ReadJwtToken(tokenString);
+            return token.Audiences.First();
         }
         #endregion
     }
