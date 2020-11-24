@@ -23,7 +23,8 @@ namespace JustLearnIT.Controllers
             AccountCreated,
             LoginTaken,
             EmailTaken,
-            NotVerified
+            NotVerified,
+            ShortPass
         }
 
         public AccessController(DatabaseContext context)
@@ -53,8 +54,11 @@ namespace JustLearnIT.Controllers
                 case IndexMessage.EmailTaken:
                     ViewBag.EmailErr = "Email assigned to another account";
                     break;
+                case IndexMessage.ShortPass:
+                    ViewBag.RegisterMessage2 = "Password too short. 6+ chars";
+                    break;
                 default:
-                    ViewBag.LoginErr = ViewBag.RegisterMessage = string.Empty;
+                    ViewBag.LoginErr = ViewBag.RegisterMessage = ViewBag.RegisterMessage2 = ViewBag.EmailErr = string.Empty;
                     break;
             }
 
@@ -71,6 +75,9 @@ namespace JustLearnIT.Controllers
 
             else if (_context.Users.Where(u => u.Email == InputManager.ParseEmail(user.Email)).Any())
                 return RedirectToAction("Index", new { message = IndexMessage.EmailTaken });
+            
+            else if (string.IsNullOrEmpty(passwordString) || passwordString.Length < 6) 
+                return RedirectToAction("Index", new { message = IndexMessage.ShortPass });
 
             var temp = user;
             temp.Id = Guid.NewGuid().ToString();
@@ -115,7 +122,7 @@ namespace JustLearnIT.Controllers
         {
             var temp = await _context.Users.Where(u => u.Login == user.Login).FirstOrDefaultAsync();
 
-            if (temp != null)
+            if (temp != null && !string.IsNullOrEmpty(passwordString))
             {
                 if (await InputManager.CheckPassword(passwordString, temp.Id, temp.Password, _context))
                 {
