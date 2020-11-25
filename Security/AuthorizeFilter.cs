@@ -5,6 +5,7 @@ using System.Linq;
 
 namespace JustLearnIT.Security
 {
+    #region Role onAuth filter
     public class RoleAuthFilter : TypeFilterAttribute
     {
         public RoleAuthFilter(string roleNames) : base(typeof(RoleRequirementFilter))
@@ -32,5 +33,28 @@ namespace JustLearnIT.Security
             }
         }
     }
+    #endregion
+
+    #region Subscription onAuth filter
+    public class SubscriptionFilter : TypeFilterAttribute
+    {
+        public SubscriptionFilter() : base(typeof(NonSubFilter))
+        {
+
+        }
+    }
+
+    public class NonSubFilter : IAuthorizationFilter
+    {
+        public NonSubFilter() { }
+        public void OnAuthorization(AuthorizationFilterContext context)
+        {
+            if (bool.Parse(context.HttpContext.Session.GetString("SUB")))
+            {
+                context.Result = new ForbidResult();
+            }
+        }
+    }
+    #endregion
 }
 

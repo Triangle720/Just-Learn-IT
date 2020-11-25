@@ -1,0 +1,24 @@
+﻿@model bool
+@{
+    Layout = "~/Views/Shared/_EmptyLayout.cshtml";
+    ViewData["Title"] = "Payment result";
+}
+
+<div class="text-center" style="margin-top:20%;">
+    @if (Model)
+    {
+        <div class="text-success">
+            <h1>Success!</h1>
+            <h3>Thanks for purchase :)</h3>
+        </div>
+        <a href="https://justlearnit20201113041152.azurewebsites.net/Home/Profile">BACK</a>
+    }
+    else
+    {
+        <div class="text-danger">
+            <h1>Your transaction has been rejected</h1>
+        </div>
+        <a href="https://justlearnit20201113041152.azurewebsites.net/Home/Profile">BACK</a>
+
+    }
+</div>

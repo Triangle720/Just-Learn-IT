@@ -34,7 +34,7 @@ namespace JustLearnIT.Security
 
             var token = new JwtSecurityToken(
                 issuer: "INO",
-                audience: user.Login,
+                audience: user.Id,
                 expires: DateTime.Now.AddMinutes(180),
                 signingCredentials: signingCredentials,
                 claims: claims
@@ -51,6 +51,7 @@ namespace JustLearnIT.Security
             string tokenString = tokenHandler.WriteToken(token);
 
             context.Session.SetString("TOKEN", tokenString);
+            context.Session.SetString("SUB", user.Subscription.ToString());
         }
 
         public static string GetJWTRole(string tokenString)

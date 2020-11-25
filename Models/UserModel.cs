@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 
@@ -42,5 +43,6 @@ namespace JustLearnIT.Models
         public virtual SaltModel Salt { get; set; }
         public virtual VerificationCodeModel VerificationCode { get; set; }
         public virtual OneTimePassword OneTimePass { get; set; }
+        public virtual List<OrderModel> Orders { get; set; }
     }
 }

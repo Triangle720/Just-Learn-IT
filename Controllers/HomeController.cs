@@ -25,7 +25,7 @@ namespace JustLearnIT.Controllers
         [RoleAuthFilter("ADMIN,USER")]
         public IActionResult Profile()
         {
-            var user = _context.Users.Where(u => u.Login == AuthService.GetJWTAudience(HttpContext.Session.GetString("TOKEN")))
+            var user = _context.Users.Where(u => u.Id == AuthService.GetJWTAudience(HttpContext.Session.GetString("TOKEN")))
                                      .FirstOrDefault();
             return View(user);
         }
@@ -33,7 +33,7 @@ namespace JustLearnIT.Controllers
         [RoleAuthFilter("ADMIN,USER")]
         public IActionResult Courses()
         {
-            var subscription = _context.Users.Where(u => u.Login == AuthService.GetJWTAudience(HttpContext.Session.GetString("TOKEN")))
+            var subscription = _context.Users.Where(u => u.Id == AuthService.GetJWTAudience(HttpContext.Session.GetString("TOKEN")))
                                              .FirstOrDefault()
                                              .Subscription;
             return View(subscription);

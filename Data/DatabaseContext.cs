@@ -15,5 +15,6 @@ namespace JustLearnIT.Data
         public DbSet<SaltModel> Salts { get; set; }
         public DbSet<VerificationCodeModel> VerificationCodes { get; set; }
         public DbSet<OneTimePassword> OneTimePasswords { get; set; }
+        public DbSet<OrderModel> Orders { get; set; }
     }
 }

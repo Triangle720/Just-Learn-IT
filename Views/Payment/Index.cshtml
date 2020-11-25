@@ -1,14 +1,53 @@
-﻿@{
+﻿@model bool
+@{
+    Layout = "~/Views/Shared/_EmptyLayout.cshtml";
     ViewData["Title"] = "Payment";
 }
 
 <div class=" row justify-content-center">
     <div class="col-md-8">
-        <div class="text-center">
-            <h1 class="display-4">Welcome</h1>
-            <hr />
-            <h2 class="text-danger">PROJECT UNDER CONSTRUCTION</h2>
-            <hr />
+        <div class="text-center" style="margin-top:20%;">
+            @if (Model)
+            {
+
+                <h2>What are you doing here?</h2>
+                <h3>You bought subscription already :)</h3>
+
+            }
+            else
+            {
+                <div class="text-center">
+                    <h3>Please choose how much money you want to spend on subscription</h3>
+                    <p>(no matter how much you spend, we just give you a choice :D)</p>
+                    <form class="payment-box">
+                        <input id="slider" class="slider" type="range" min="1" max="100" step="1" value="1"
+                               onchange="changeMoneyAmount()" oninput="changeMoneyAmount()" />
+                        <p id="count">1 PLN</p>
+                        <div class="payment-buttons text-center">
+                            <input value="Back" type="submit" class="btn btn-primary" asp-controller="Home" asp-action="Profile">
+                            <input value="Pay" type="button" class="btn btn-primary" onclick="pay()">
+                        </div>
+                        <div style="margin-top:50px;">
+                            <h1 class="text-danger">Important!</h1>
+                            <p class="text-danger">It's not a real payment! We are using 'SANDBOX' PayU API to imitate transactions. Please use <b>BLIK ONLY</b>. To pass this step: <b>Pay -> BLIK -> Enter your email -> Confirm -> Logout</b></p>
+                        </div>
+                    </form>
+                </div>
+            }
         </div>
     </div>
 </div>
+
+<script>
+    var pointCount = document.getElementById('count');
+    var slider = document.getElementById('slider');
+
+    function changeMoneyAmount() {
+        pointCount.innerHTML = slider.value + ' PLN';
+    }
+
+    function pay() {
+        var url = "/Payment/PayU_Redirect/" + slider.value;
+        window.location.href = url; 
+    }
+</script>

@@ -32,6 +32,7 @@ namespace JustLearnIT
             InputManager.PBKDF2 = Array.ConvertAll(KeyVaultService.GetSecretByName("PBKDF2--params").Split(';'), s => int.Parse(s));
             EmailService.CreateSMTPClient(KeyVaultService.GetSecretByName("SMTP--PASS"));
             BlobStorageService.BlobConnectionString = KeyVaultService.GetSecretByName("ConnectionStrings--BlobSotrage");
+            PaymentService.CreateService(KeyVaultService.GetSecretByName("PayU"));
             #endregion
 
             services.AddControllersWithViews();
