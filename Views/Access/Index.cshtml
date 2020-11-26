@@ -37,6 +37,9 @@
                     <label asp-for="Password" class="control-label"></label>
                     <input asp-for="@passwordString" type="password" class="form-control" maxlength="256" />
                 </div>
+                <div class="text-center">
+                    <a asp-action="Recover">Forgot your password?</a>
+                </div>
                 <div class="form-group text-center">
                     <input type="submit" value="Sign in" class="btn btn-primary" />
                 </div>

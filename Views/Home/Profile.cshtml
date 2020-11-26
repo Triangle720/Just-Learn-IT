@@ -1,6 +1,8 @@
 ﻿@model UserModel
 @{
     ViewData["Title"] = "Profile";
+    string oldP = "";
+    string newP = "";
 }
 
 <div class="profile-container">
@@ -23,12 +25,25 @@
                     <h5>Email</h5>
                     <p>@Model.Email</p>
                     <h5>Password</h5>
-                    <input id="pass_btn" class="btn btn-primary" type="button" value="change" disabled />
-                    <form id="pass_form" hidden>
-                        @*
-                            TODO
-                        *@
+                    <input id="pass_btn" class="btn btn-primary" type="button" value="change" onclick="showPasswordForm()" />
+                    <form id="pass_form" asp-action="ChangePassword" style="display:none;">
+                        <div class="form-group">
+                            <input asp-for="Id" hidden />
+                        </div>
+                        <div class="form-group">
+                            <label>Old</label>
+                            <input asp-for="@oldP" type="password" class="form-control" autocomplete="off" style="width:100%;" maxlength="256">
+                        </div>
+                        <div class="form-group">
+                            <label>New</label>
+                            <input asp-for="@newP" type="password" class="form-control" autocomplete="off" style="width:100%;" maxlength="256"/>
+                        </div>
+                        <div class="payment-buttons">
+                            <input class="btn btn-primary" type="button" value="Hide" onclick="showPasswordForm()" />
+                            <input class="btn btn-primary" type="submit" value="OK" />
+                        </div>
                     </form>
+                    <p class="text-danger">@ViewBag.Message</p>
                 </div>
             </div>
             <div class="text-center" style="margin-top:15px;">
@@ -75,6 +90,20 @@
         else {
             trustText.innerHTML = "not trusted";
             trustText.style.color = "red";
+        }
+    }
+
+    function showPasswordForm() {
+        var formStyle = document.getElementById('pass_form').style;
+        var btnStyle = document.getElementById('pass_btn').style;
+
+        if (formStyle.display == "none") {
+            formStyle.display = "inline-block";
+            btnStyle.display = "none";
+        }
+        else {
+            formStyle.display = "none";
+            btnStyle.display = "inline-block";
         }
     }
 

@@ -26,7 +26,13 @@ namespace JustLearnIT.Security
             };
             var key = deriveBytes.GetBytes(PBKDF2[0]);
 
-            await _context.AddAsync(salt);
+            var userSalt = await _context.Salts.Where(s => s.UserModelId == userId).FirstOrDefaultAsync();
+            if (userSalt != null)
+            {
+                userSalt.Value = salt.Value;
+                _context.Entry(userSalt).State = EntityState.Modified;
+            }
+            else await _context.AddAsync(salt);
 
             return key;
         }

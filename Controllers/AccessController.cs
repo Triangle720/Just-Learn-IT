@@ -227,6 +227,28 @@ namespace JustLearnIT.Controllers
         }
         #endregion
 
+        public IActionResult Recover()
+        {
+            return View();
+        }
+
+        public async Task<IActionResult> SendRecovery(string email)
+        {
+            if(!string.IsNullOrEmpty(email))
+            {
+                var user = await _context.Users.Where(u => u.Email == email).FirstOrDefaultAsync();
+                if(user != null)
+                {
+                    var newPassword = await EmailService.SendEmail(user.Email, user.Login, EmailType.Password_Restart);
+                    user.Password = await InputManager.EncryptPassword(newPassword, user.Id, _context);
+                    _context.Entry(user).State = EntityState.Modified;
+                    await _context.SaveChangesAsync();
+                }
+            }
+
+            return RedirectToAction("Index");
+        }
+
         public IActionResult Logout()
         {
             HttpContext.Session.Clear();

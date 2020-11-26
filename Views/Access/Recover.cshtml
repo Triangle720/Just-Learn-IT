@@ -1,0 +1,31 @@
+﻿@inject IHttpContextAccessor httpContextAccessor
+@{
+    ViewData["Title"] = "Password recover";
+    string Email = "";
+}
+
+@if (httpContextAccessor.HttpContext.Session.GetString("TOKEN") == null)
+{
+    <div class="text-center" style="margin-top:20%;">
+        <h1>Password recovery</h1>
+    </div>
+    <div class="row justify-content-center align-items-center" style="margin-top:20px;">
+        <div class="col-md-6">
+            <form asp-action="SendRecovery">
+                <div class="form-group">
+                    <label>Enter your email</label>
+                    <input asp-for="@Email" class="form-control" autocomplete="off" />
+                </div>
+                <div class="text-center">
+                    <input value="Send" class="btn btn-primary" type="submit" />
+                </div>
+            </form>
+        </div>
+    </div>
+}
+else
+{
+    <div class="text-center" style="margin-top:20%;">
+        <h1 class="text-danger">Are you lost? :)</h1>
+    </div>
+}
