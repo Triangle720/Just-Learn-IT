@@ -32,7 +32,7 @@ namespace JustLearnIT.Controllers
                 var results = await PaymentService.CreateOrder(amount);
 
                 // retry if no response
-                if(string.IsNullOrEmpty(results))
+                if (string.IsNullOrEmpty(results))
                 {
                     await PaymentService.GetAccessToken();
                     results = await PaymentService.CreateOrder(amount);
@@ -57,7 +57,7 @@ namespace JustLearnIT.Controllers
 
         public async Task<IActionResult> Result(int error = 0)
         {
-            if(error != 0) return RedirectToAction("Error");
+            if (error != 0) return RedirectToAction("Error");
             var user = _context.Users.Where(u => u.Id == AuthService.GetJWTAudience(HttpContext.Session.GetString("TOKEN"))).FirstOrDefault();
 
             if (user.Orders == null) return RedirectToAction("Error"); // TODO: Show info about no orders
@@ -71,8 +71,8 @@ namespace JustLearnIT.Controllers
             foreach (Models.OrderModel order in user.Orders)
             {
                 var status = await PaymentService.IsOrderAccepted(order.Id);
-                
-                if(status)
+
+                if (status)
                 {
                     _context.RemoveRange(user.Orders);
                     user.Subscription = true;

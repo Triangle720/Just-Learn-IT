@@ -23,7 +23,7 @@ namespace JustLearnIT.Models
         // Regex used only to get password from user. In database, it contain array of bytes
         [NotNull]
         [Required]
-        [RegularExpression("^.{6,256}$", ErrorMessage = "6-256 chars.")]
+        //[RegularExpression("^.{6,256}$", ErrorMessage = "6-256 chars.")]
         public byte[] Password { get; set; }
 
         // about Email regex: sometimes people are using upper letters in emails... + email id may contain '.' (though it mean nothing (gmail))

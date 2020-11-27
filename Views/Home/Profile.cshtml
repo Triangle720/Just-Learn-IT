@@ -36,7 +36,7 @@
                         </div>
                         <div class="form-group">
                             <label>New</label>
-                            <input asp-for="@newP" type="password" class="form-control" autocomplete="off" style="width:100%;" maxlength="256"/>
+                            <input asp-for="@newP" type="password" class="form-control" autocomplete="off" style="width:100%;" maxlength="256" />
                         </div>
                         <div class="payment-buttons">
                             <input class="btn btn-primary" type="button" value="Hide" onclick="showPasswordForm()" />
@@ -58,10 +58,22 @@
                     }
                     else
                     {
-                        <form>
-                            <p class="text-danger"><b>No Subscription</b></p>
-                            <input class="btn btn-primary" value="Buy" type="submit" asp-controller="Payment" asp-action="Index" />
-                        </form>
+                        @if (Model.Orders.Count() != 0)
+                        {
+                            <form>
+                                <p class="text-danger"><b>No Subscription</b></p>
+                                <input class="btn btn-primary" value="Buy" type="submit" disabled />
+                            </form>
+                            <p class="text-danger">It looks like you have a transaction that we haven't checked</p>
+                            <a asp-action="Result" asp-controller="Payment"><b>Click here</b></a>
+                        }
+                        else
+                        {
+                            <form>
+                                <p class="text-danger"><b>No Subscription</b></p>
+                                <input class="btn btn-primary" value="Buy" type="submit" asp-controller="Payment" asp-action="Index" />
+                            </form>
+                        }
                     }
                 </div>
             </div>
