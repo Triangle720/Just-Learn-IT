@@ -7,6 +7,12 @@ namespace JustLearnIT.Services
 {
     public static class KeyVaultService
     {
+        private static string Uri { get; set; }
+        public static void Create(string secret)
+        {
+            Uri = secret;
+        }
+
         public static string GetSecretByName(string secretName)
         {
             SecretClientOptions options = new SecretClientOptions()
@@ -20,7 +26,7 @@ namespace JustLearnIT.Services
                  }
             };
 
-            var client = new SecretClient(new Uri(Environment.GetEnvironmentVariable("VaultUri")),
+            var client = new SecretClient(new Uri(Uri),
                                                   new DefaultAzureCredential(),
                                                   options);
 

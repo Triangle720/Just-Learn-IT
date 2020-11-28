@@ -11,9 +11,9 @@ namespace JustLearnIT.Services
         private static string Token { get; set; }
         private static Uri BaseUrl { get; set; }
 
-        public static void CreateService(string secrest)
+        public static void Create(string secret)
         {
-            Secrets = secrest.Split(';');
+            Secrets = secret.Split(';');
             Token = Secrets[2];
             BaseUrl = new Uri("https://secure.snd.payu.com/");
         }

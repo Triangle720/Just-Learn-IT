@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 namespace JustLearnIT.Controllers
 {
     [RoleAuthFilter("ADMIN,USER")]
-    [SubscriptionFilter]
+    [SubscriptionFilter(false)]
     public class PaymentController : Controller
     {
         private readonly DatabaseContext _context;
@@ -60,30 +60,28 @@ namespace JustLearnIT.Controllers
             if (error != 0) return RedirectToAction("Error");
             var user = _context.Users.Where(u => u.Id == AuthService.GetJWTAudience(HttpContext.Session.GetString("TOKEN"))).FirstOrDefault();
 
-            if (user.Orders == null) return RedirectToAction("Error"); // TODO: Show info about no orders
-
-
-            /*
-             * let's assume that we only accept the completed transaction and then delete all of them
-             * TODO: Optimization
-             */
-
-            foreach (Models.OrderModel order in user.Orders)
+            if (user.Orders != null)
             {
-                var status = await PaymentService.IsOrderAccepted(order.Id);
-
-                if (status)
+                /*
+                 * let's assume that we only accept the completed transaction and then delete all of them
+                 * TODO: Optimization
+                 */
+                foreach (Models.OrderModel order in user.Orders)
                 {
-                    _context.RemoveRange(user.Orders);
-                    user.Subscription = true;
-                    _context.Entry(user).State = EntityState.Modified;
-                    await _context.SaveChangesAsync();
+                    var status = await PaymentService.IsOrderAccepted(order.Id);
 
-                    HttpContext.Session.SetString("SUB", true.ToString());
-                    return View(true);
+                    if (status)
+                    {
+                        _context.RemoveRange(user.Orders);
+                        user.Subscription = true;
+                        _context.Entry(user).State = EntityState.Modified;
+                        await _context.SaveChangesAsync();
+
+                        HttpContext.Session.SetString("SUB", true.ToString());
+                        return View(true);
+                    }
+                    _context.Remove(order);
                 }
-
-                _context.Remove(order);
             }
 
             return View(false);

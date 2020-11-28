@@ -18,7 +18,7 @@ namespace JustLearnIT.Services
     {
         private static SmtpClient SMTP { get; set; }
 
-        public static void CreateSMTPClient(string password)
+        public static void Create(string secret)
         {
             SMTP = new SmtpClient
             {
@@ -26,7 +26,7 @@ namespace JustLearnIT.Services
                 Host = "smtp.gmail.com",
                 EnableSsl = true,
                 UseDefaultCredentials = false,
-                Credentials = new NetworkCredential("justlearnit.bot@gmail.com", password),
+                Credentials = new NetworkCredential("justlearnit.bot@gmail.com", secret),
                 DeliveryMethod = SmtpDeliveryMethod.Network
             };
         }

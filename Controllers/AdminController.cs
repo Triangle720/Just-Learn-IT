@@ -36,6 +36,7 @@ namespace JustLearnIT.Controllers
             {
                 if (user.VerificationCode != null) _context.Remove(user.VerificationCode);
                 if (user.OneTimePass != null) _context.Remove(user.OneTimePass);
+                if (user.Orders.Count() > 0) _context.RemoveRange(user.OneTimePass);
                 _context.Remove(user.Salt);
                 _context.Remove(user);
                 await _context.SaveChangesAsync();

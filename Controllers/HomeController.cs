@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 
 namespace JustLearnIT.Controllers
 {
@@ -38,10 +39,15 @@ namespace JustLearnIT.Controllers
         [RoleAuthFilter("ADMIN,USER")]
         public IActionResult Courses()
         {
+            var courses = new List<Models.CourseModel>();
             var subscription = _context.Users.Where(u => u.Id == AuthService.GetJWTAudience(HttpContext.Session.GetString("TOKEN")))
                                              .FirstOrDefault()
                                              .Subscription;
-            return View(subscription);
+
+            // if no sub - return empty list
+            if (subscription) courses = _context.Courses.ToList();
+
+            return View(courses);
         }
 
 

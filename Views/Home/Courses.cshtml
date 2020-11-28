@@ -1,26 +1,46 @@
-﻿@model bool
-@inject IHttpContextAccessor httpContextAccessor
+﻿@model IEnumerable<JustLearnIT.Models.CourseModel>
 
 @{
     ViewData["Title"] = "Courses";
 }
 
-<div class=" row justify-content-center">
-    <div class="col-md-8">
-        <div class="text-center">
-            <h1 class="display-4">Courses</h1>
-            <hr />
-            <h2 class="text-danger">PROJECT UNDER CONSTRUCTION</h2>
-            <hr />
-            @if (Model)
+@if (Model.Count() > 0)
+{
+    <h1>Courses</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.CourseName)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.CourseInfo)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
             {
-                <p class="text-success">Your subscription is active</p>
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.CourseName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.CourseInfo)
+                    </td>
+                    <td>
+                        <a asp-action="Index" asp-controller="Video" asp-route-courseName="@item.CourseName">Play</a>
+                    </td>
+                </tr>
             }
-            else
-            {
-                <p class="text-danger">Your subscription is inactive.</p>
-                <p class="text-danger">Go to: <b>Profile -> Subscription</b> and buy subscription.</p>
-            }
-        </div>
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="text-center" style="margin-top:20%;">
+        <h1 class="text-danger">Buy subscription first!</h1>
     </div>
-</div>
+}

@@ -58,22 +58,10 @@
                     }
                     else
                     {
-                        @if (Model.Orders.Count() != 0)
-                        {
-                            <form>
-                                <p class="text-danger"><b>No Subscription</b></p>
-                                <input class="btn btn-primary" value="Buy" type="submit" disabled />
-                            </form>
-                            <p class="text-danger">It looks like you have a transaction that we haven't checked</p>
-                            <a asp-action="Result" asp-controller="Payment"><b>Click here</b></a>
-                        }
-                        else
-                        {
-                            <form>
-                                <p class="text-danger"><b>No Subscription</b></p>
-                                <input class="btn btn-primary" value="Buy" type="submit" asp-controller="Payment" asp-action="Index" />
-                            </form>
-                        }
+                        <form>
+                            <p class="text-danger"><b>No Subscription</b></p>
+                            <input class="btn btn-primary" value="Buy" type="submit" asp-controller="Payment" asp-action="Index" />
+                        </form>
                     }
                 </div>
             </div>

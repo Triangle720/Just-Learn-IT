@@ -38,18 +38,22 @@ namespace JustLearnIT.Security
     #region Subscription onAuth filter
     public class SubscriptionFilter : TypeFilterAttribute
     {
-        public SubscriptionFilter() : base(typeof(NonSubFilter))
+        public SubscriptionFilter(bool isSub) : base(typeof(NonSubFilter))
         {
-
+            Arguments = new object[] { isSub };
         }
     }
 
     public class NonSubFilter : IAuthorizationFilter
     {
-        public NonSubFilter() { }
+        readonly bool _isSub;
+        public NonSubFilter(bool isSub) 
+        {
+            _isSub = isSub;
+        }
         public void OnAuthorization(AuthorizationFilterContext context)
         {
-            if (bool.Parse(context.HttpContext.Session.GetString("SUB")))
+            if (bool.Parse(context.HttpContext.Session.GetString("SUB")) != _isSub)
             {
                 context.Result = new ForbidResult();
             }

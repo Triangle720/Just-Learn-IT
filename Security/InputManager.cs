@@ -11,9 +11,15 @@ namespace JustLearnIT.Security
 {
     internal static class InputManager
     {
-        public static Regex Re { get; set; }
+        private static Regex Re { get; set; }
         // salt len, iterations
-        public static int[] PBKDF2 { get; set; }
+        private static int[] PBKDF2 { get; set; }
+
+        public static void Create(string secret)
+        {
+            PBKDF2 = Array.ConvertAll(secret.Split(';'), s => int.Parse(s));
+            Re = new Regex("[.]");
+        }
 
         public static async Task<byte[]> EncryptPassword(string password, string userId, DatabaseContext _context)
         {

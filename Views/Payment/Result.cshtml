@@ -11,14 +11,12 @@
             <h1>Success!</h1>
             <h3>Thanks for purchase :)</h3>
         </div>
-        <a href="https://justlearnit20201113041152.azurewebsites.net/Home/Profile">BACK</a>
     }
     else
     {
         <div class="text-danger">
-            <h1>Your transaction has been rejected</h1>
+            <h1>Payment failed</h1>
         </div>
-        <a href="https://justlearnit20201113041152.azurewebsites.net/Home/Profile">BACK</a>
-
     }
+    <a asp-action="Profile" asp-controller="Home">BACK</a>
 </div>

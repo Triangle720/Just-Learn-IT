@@ -1,6 +1,5 @@
 using System;
 using System.Text;
-using System.Text.RegularExpressions;
 using JustLearnIT.Services;
 using JustLearnIT.Data;
 using JustLearnIT.Security;
@@ -27,12 +26,12 @@ namespace JustLearnIT
 
         public void ConfigureServices(IServiceCollection services)
         {
-            #region static class vars assign
-            InputManager.Re = new Regex("[.]");
-            InputManager.PBKDF2 = Array.ConvertAll(KeyVaultService.GetSecretByName("PBKDF2--params").Split(';'), s => int.Parse(s));
-            EmailService.CreateSMTPClient(KeyVaultService.GetSecretByName("SMTP--PASS"));
-            BlobStorageService.BlobConnectionString = KeyVaultService.GetSecretByName("ConnectionStrings--BlobSotrage");
-            PaymentService.CreateService(KeyVaultService.GetSecretByName("PayU"));
+            #region services setup
+            KeyVaultService.Create(Environment.GetEnvironmentVariable("VaultUri"));
+            EmailService.Create(KeyVaultService.GetSecretByName("SMTP--PASS"));
+            PaymentService.Create(KeyVaultService.GetSecretByName("PayU"));
+            BlobStorageService.Create(KeyVaultService.GetSecretByName("ConnectionStrings--BlobSotrage"));
+            InputManager.Create(KeyVaultService.GetSecretByName("PBKDF2--params"));
             #endregion
 
             services.AddControllersWithViews();

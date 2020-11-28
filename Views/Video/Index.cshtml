@@ -1,0 +1,19 @@
+﻿@model string
+@{
+    ViewData["Title"] = "Video";
+    Layout = "~/Views/Shared/_EmptyLayout.cshtml";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        @if (!string.IsNullOrEmpty(Model))
+        {
+            <video controls style="width:100%;height:auto;margin-top:10%">
+                <source src="getvideo?videoName=@Model" type="video/mp4" />
+            </video>
+            <div class="text-center">
+                <a asp-action="Courses" asp-controller="Home">BACK</a>
+            </div>
+        }
+    </div>
+</div>
